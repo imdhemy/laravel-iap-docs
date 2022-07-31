@@ -4,3 +4,20 @@ description: "An overview about server notifications."
 ---
 
 # Overview
+
+LIAP supports Google Play Realtime Developer Notifications and App Store
+Server Notifications out of the box. Server notifications is a mechanism to
+receive push notifications from the service provider (Google Play or Apple)
+whenever there is a change in user's subscription status. These
+notifications allow you to immediately react to subscription changes,
+avoiding the need to poll the APIs for updates.
+
+:::note
+Note that inefficient use of the Google Play Developer API can lead to API
+quota restrictions. So, it is recommended to depend on the server notifications.
+:::
+
+## Setup instructions
+
+- [App Store Server Notifications](/docs/server-notifications/app-store).
+- [Google Play Realtime Developer Notifications](/docs/server-notifications/google-play).
