@@ -5,8 +5,8 @@ description: "Learn how to use liap event listeners."
 
 # Event Listeners
 
-If you enabled the [server notifications](docs/category/server-notifications)
-on your IAP provider CP, LIAP will trigger a purchase event once a
+If you enabled the [server notifications](/docs/category/server-notifications)
+on your IAP provider control panel, LIAP will trigger a purchase event once a
 notification is received.
 
 ## Creating an Event Listener
@@ -59,17 +59,13 @@ through the `getSubscription()` method.
 
 The subscription instance gives you access to the following methods:
 
-1. `getExpiryTime()` returns a `Time` instance representing the subscription
-   expiry time.
-2. `getItemId()` returns the subscription identifier.
-3. `getProvider()` returns the subscription provider. (`app_store` or
-`google_play`).
-4. `getUniqueIdentifier()` returns the subscription unique identifier. Learn
-more about customizing the subscription unique identifiers in the
-[configuration](/docs/get-started/installation#unique-identifiers) section.
-5. `getProviderRepresentation()` returns the subscription provider original
-representation. This is useful for accessing extra subscription data if
-required.
+| Method                        | Description                                                                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| `getExpiryTime()`             | Returns the subscription expiry time.                                                                                       |
+| `getItemId()`                 | Returns the subscription item ID.                                                                                           |
+| `getProvider()`               | Returns the subscription provider. (`'app_store'` or `'google_play'`)                                                       |
+| `getUniqueIdentifier()`       | Returns the subscription unique identifier.                                                                                 |
+| `getProviderRepresentation()` | Returns the subscription provider original representation. This is useful for accessing extra subscription data ifrequired. |
 
 ## Handling an event example
 
