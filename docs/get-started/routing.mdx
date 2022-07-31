@@ -43,6 +43,43 @@ You can generate them using the following composer command:
 php artisan liap:url
 ```
 
+It will ask for the provider:
+
+```shell
+Select provider:
+  [0] All Providers
+  [1] App Store
+  [2] Google Play
+ >
+```
+
+If you didn't enable signed URLs, it will ask for your confirmation to
+generate signed URLs:
+
+```shell
+Select provider:
+  [0] All Providers
+  [1] App Store
+  [2] Google Play
+ > 0
+
+ Signed routes are disabled. Do you want to generate signed routes? (yes/no) [no]:
+ > yes
+```
+
+Based on your answers, it will generate a table with the following columns:
+
+```shell
++-------------+-------------------------------------------------------------------------------------------------------------------------------------+
+| Provider    | URL                                                                                                                                 |
++-------------+-------------------------------------------------------------------------------------------------------------------------------------+
+| App Store   | http://localhost/liap/notifications?signature=538885e62adda33d1b7e5a49238ec35fa872edd394ec4b6854f42062f34173b4&provider=app-store   |
+| Google Play | http://localhost/liap/notifications?signature=538885e62adda33d1b7e5a49238ec35fa872edd394ec4b6854f42062f34173b4&provider=google-play |
++-------------+-------------------------------------------------------------------------------------------------------------------------------------+
+```
+
+The generated URLs will be used to receive the [server notifications](/docs/category/server-notifications).
+
 ## Validating a signed route requests
 
 In order to verify that an incoming request has a valid signature, you should set the `routing.signed` key to `true`.
