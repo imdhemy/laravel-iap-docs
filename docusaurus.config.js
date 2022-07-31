@@ -114,7 +114,7 @@ const config = {
             items: [
               {
                 label: 'Buy me a coffee',
-                href: 'https://www.buymeacoffee.com/imdhemy',
+                href: 'https://github.com/sponsors/imdhemy',
               }
             ],
           },
