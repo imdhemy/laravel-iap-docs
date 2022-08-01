@@ -4,3 +4,98 @@ description: "Google Play real-time developer notifications guide."
 ---
 
 # Google Play RTDN
+
+## Overview
+
+Google Play RTDN leverage the use of [Google Cloud Pub/Sub](https://cloud.
+google.com/pubsub/) to send real-time notifications that allows you to react
+immediately to changes in the subscription state, avoiding the need to poll
+the API.
+
+To receive notifications, you need to create a backend server to consume the
+messages sent to your topic. This is provided out of the box by **LIAP**.
+
+To use Cloud Pub/Sub, you must have a Google Cloud Platform project with
+Cloud Pub/Sub enabled. Check the [Quickstart guide](https://cloud.google.com/pubsub/docs/quickstart-console)
+for more information.
+
+## Setup
+
+The following steps are required to receive notifications:
+
+- Create a topic.
+- Create Pub/Sub a subscription.
+- Grant the service account permission to publish messages to the topic.
+- Enable Real-time developer notifications for your app.
+
+### Create a topic
+
+To create a topic, you can use the [Guide me](https://console.cloud.google.com/cloudpubsub?walkthrough_id=pubsub_quickstart)
+feature provided by Google that guides you through the process of creating a
+topic.
+
+![](/img/server-notifications/google-play-create-topic-guide-me.png)
+
+Or you can use the [Google Cloud Console](https://console.cloud.google.com/cloudpubsub/topicList),
+which is a simple interface for managing topics.
+
+Then Click on the **Create a topic** button. In the **Topic ID** field,
+enter a unique ID for your topic, then click **Save**.
+
+### Create a Pub/Sub subscription
+
+To receive messages from the topic, you need to create a subscription to
+that topic. To create a subscription, do the following:
+
+1. Display the menu for the topic you just created.
+2. Click on the **Create a subscription** button.
+3. Type the name of the subscription.
+4. Choose **Push to endpoint** as the delivery Type.
+5. Enter the [URL of the backend server](http://localhost:3000/laravel-iap-docs/docs/get-started/routing#generate-a-signed-url)
+you created in the **Endpoint URL**.
+6. Click on the **Create** button.
+
+![](/img/server-notifications/create-pub-sub-subscription.png)
+
+### Grant publish rights on your topic
+
+Google Pub/Sub requires that you grant Google Play the permission to publish
+notifications to your topic. To do this:
+
+1. Find your topic in the Google Cloud Console.
+2. Open the permissions details.
+
+![](/img/server-notifications/google-play-topic-permissions.png)
+
+3. On the right side of the page, click on the **Add Principal** button.
+
+![](/img/server-notifications/google-play-topic-add-principal.png)
+
+4. Add the service account `google-play-developer-notifications@system.gserviceaccount.com`,
+and grant it the role of **Pub/Sub Publisher**.
+
+![](/img/server-notifications/google-play-topic-add-principal-service-account.png)
+
+5. Click Save to complete the topic set up.
+
+
+### Enable Real-time developer notifications for your app
+
+To enable real-time developer notifications for your app, do the following:
+
+1. Go to the [Google Play Console](https://play.google.com/console/).
+2. Select your app.
+3. Go the **Monetize > Monetization** tab.
+4. Scroll down to the **Real-time developer notifications** section.
+![](/img/server-notifications/google-play-monetization-real-time-developer-notifications.png)
+5. In the **Topic name** field, enter the name of the topic you created. It
+should be in the format `projects/{project_id}/topics/{topic_name}`.
+6. Click **Save changes**.
+
+:::warning Warning:::
+Sending a **Test Message** requires a deployed endpoint to receive the
+message, otherwise the message will keep trying to be sent.
+:::
+
+Test messages are logged by LIAP out of the box, so you can see the messages
+in the logs.
