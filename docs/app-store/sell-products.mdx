@@ -35,7 +35,7 @@ use Imdhemy\Purchases\Facades\Product;
 use Exception;
 
 // Verify the receipt on App Store
-$receiptResponse = Product::appStore()->receiptData($receipt)->verify();
+$receiptResponse = Product::appStore()->receiptData($receipt)->verifyReceipt();
 
 // Check the values of the response to verify transactions as needed.
 $receipt = $receiptResponse->getReceipt();
