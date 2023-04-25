@@ -63,6 +63,27 @@ App Store IAP package supports both `v1` and `v2` server notifications. Just mak
 Connect account. For both versions, you need to create an endpoint or a route to handle the notifications received from the
 App Store.
 
+### V2 Server Notifications (Recommended)
+
+```php
+use Imdhemy\AppStore\Jws\Parser;
+use Imdhemy\AppStore\Jws\AppStoreJwsVerifier;
+
+$signedPayload = $request->getSignedPayload(); // Should be the request body received from the App Store
+$jws = Parser::toJws($signedPayload);
+$verifier = new AppStoreJwsVerifier();
+if ($verifier->verify($jws)) {
+    // The notification is valid
+
+    $decodedPayload = V2DecodedPayload::fromJws($jws);
+    // Then you have access to the notification attributes
+
+} else {
+    // The notification is invalid
+}
+
+```
+
 ### V1 Server Notifications
 
 ```php
