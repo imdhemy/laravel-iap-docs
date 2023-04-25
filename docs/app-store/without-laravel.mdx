@@ -56,3 +56,23 @@ if ($receiptStatus->isValid()) {
 :::tip
 You can find more about Selling subscriptions and products on the [App Store section](/docs/category/app-store).
 :::
+
+## Server Notifications
+
+App Store IAP package supports both `v1` and `v2` server notifications. Just make sure which version is set in you App Store
+Connect account. For both versions, you need to create an endpoint or a route to handle the notifications received from the
+App Store.
+
+### V1 Server Notifications
+
+```php
+use Imdhemy\AppStore\ServerNotifications\ServerNotification;
+
+$attributes = $request->all(); // Should be the request body
+$serverNotification = ServerNotification::fromArray($attributes);
+
+// Then you have access to the notification attributes
+$eventType = $serverNotification->getNotificationType();
+
+// based on the event type, you can get the related attributes
+```
