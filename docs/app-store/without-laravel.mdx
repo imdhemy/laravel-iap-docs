@@ -5,3 +5,54 @@ description: "How to use App Store IAP outside Laravel."
 
 # Usage outside Laravel
 
+If you are not using Laravel, you can still use the [App Store IAP package](https://github.com/imdhemy/appstore-iap).
+We will show you how to do this in this section.
+
+## Installation
+
+You can install the package via composer:
+
+```bash
+composer require imdhemy/appstore-iap
+```
+
+## Receipt Verification
+
+To verify a receipt, you need to create an instance of the `Verifier` class and call the `verify()` method. The `Verifier`
+class accepts three parameters:
+
+1. The Http Client, and you should decide which one to use, a production or a sandbox client.
+2. The receipt data, which is a base64 encoded string.
+3. The password, which is the shared secret of your app.
+
+:::tip
+Make sure you don't hardcode the `password` in your code, you should use an environment variable instead.
+:::
+
+```php
+use Imdhemy\AppStore\ClientFactory;
+
+$client = ClientFactory::create();
+$sandboxClient = ClientFactory::createSandbox();
+
+$receiptData = 'base64 encoded receipt data';
+$password = 'your shared secret'; // don't hardcode this
+
+$verifier = new Verifier($client, $receiptData, $password);
+$excludeOldTransactions = true;
+
+$receipt = $verifier->verify($excludeOldTransactions, $sandboxClient);
+
+// Get the receipt status
+$receiptStatus = $receipt->getStatus();
+
+if ($receiptStatus->isValid()) {
+    // The receipt is valid
+} else {
+    // The receipt is invalid
+}
+```
+
+:::tip
+You can find more about Selling subscriptions and products on the [App Store section](/docs/category/app-store).
+:::
