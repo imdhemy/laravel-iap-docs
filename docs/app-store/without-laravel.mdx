@@ -5,3 +5,95 @@ description: "How to use App Store IAP outside Laravel."
 
 # Usage outside Laravel
 
+If you are not using Laravel, you can still use the [App Store IAP package](https://github.com/imdhemy/appstore-iap).
+We will show you how to do this in this section.
+
+## Installation
+
+You can install the package via composer:
+
+```bash
+composer require imdhemy/appstore-iap
+```
+
+## Receipt Verification
+
+To verify a receipt, you need to create an instance of the `Verifier` class and call the `verify()` method. The `Verifier`
+class accepts three parameters:
+
+1. The Http Client, and you should decide which one to use, a production or a sandbox client.
+2. The receipt data, which is a base64 encoded string.
+3. The password, which is the shared secret of your app.
+
+:::tip
+Make sure you don't hardcode the `password` in your code, you should use an environment variable instead.
+:::
+
+```php
+use Imdhemy\AppStore\ClientFactory;
+
+$client = ClientFactory::create();
+$sandboxClient = ClientFactory::createSandbox();
+
+$receiptData = 'base64 encoded receipt data';
+$password = 'your shared secret'; // don't hardcode this
+
+$verifier = new Verifier($client, $receiptData, $password);
+$excludeOldTransactions = true;
+
+$receipt = $verifier->verify($excludeOldTransactions, $sandboxClient);
+
+// Get the receipt status
+$receiptStatus = $receipt->getStatus();
+
+if ($receiptStatus->isValid()) {
+    // The receipt is valid
+} else {
+    // The receipt is invalid
+}
+```
+
+:::tip
+You can find more about Selling subscriptions and products on the [App Store section](/docs/category/app-store).
+:::
+
+## Server Notifications
+
+App Store IAP package supports both `v1` and `v2` server notifications. Just make sure which version is set in you App Store
+Connect account. For both versions, you need to create an endpoint or a route to handle the notifications received from the
+App Store.
+
+### V2 Server Notifications (Recommended)
+
+```php
+use Imdhemy\AppStore\Jws\Parser;
+use Imdhemy\AppStore\Jws\AppStoreJwsVerifier;
+
+$signedPayload = $request->getSignedPayload(); // Should be the request body received from the App Store
+$jws = Parser::toJws($signedPayload);
+$verifier = new AppStoreJwsVerifier();
+if ($verifier->verify($jws)) {
+    // The notification is valid
+
+    $decodedPayload = V2DecodedPayload::fromJws($jws);
+    // Then you have access to the notification attributes
+
+} else {
+    // The notification is invalid
+}
+
+```
+
+### V1 Server Notifications
+
+```php
+use Imdhemy\AppStore\ServerNotifications\ServerNotification;
+
+$attributes = $request->all(); // Should be the request body
+$serverNotification = ServerNotification::fromArray($attributes);
+
+// Then you have access to the notification attributes
+$eventType = $serverNotification->getNotificationType();
+
+// based on the event type, you can get the related attributes
+```
