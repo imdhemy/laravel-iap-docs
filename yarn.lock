@@ -6155,11 +6155,11 @@ postcss-selector-parser@^6.0.2, postcss-selector-parser@^6.0.4, postcss-selector
     util-deprecate "^1.0.2"
 
 postcss-sort-media-queries@^4.2.1:
-  version "4.2.1"
-  resolved "https://registry.yarnpkg.com/postcss-sort-media-queries/-/postcss-sort-media-queries-4.2.1.tgz#a99bae69ef1098ee3b64a5fa94d258ec240d0355"
-  integrity sha512-9VYekQalFZ3sdgcTjXMa0dDjsfBVHXlraYJEMiOJ/2iMmI2JGCMavP16z3kWOaRu8NSaJCTgVpB/IVpH5yT9YQ==
+  version "4.4.1"
+  resolved "https://registry.yarnpkg.com/postcss-sort-media-queries/-/postcss-sort-media-queries-4.4.1.tgz#04a5a78db3921eb78f28a1a781a2e68e65258128"
+  integrity sha512-QDESFzDDGKgpiIh4GYXsSy6sek2yAwQx1JASl5AxBtU1Lq2JfKBljIPNdil989NcSKRQX1ToiaKphImtBuhXWw==
   dependencies:
-    sort-css-media-queries "2.0.4"
+    sort-css-media-queries "2.1.0"
 
 postcss-svgo@^5.1.0:
   version "5.1.0"
@@ -7091,10 +7091,10 @@ sockjs@^0.3.24:
     uuid "^8.3.2"
     websocket-driver "^0.7.4"
 
-sort-css-media-queries@2.0.4:
-  version "2.0.4"
-  resolved "https://registry.yarnpkg.com/sort-css-media-queries/-/sort-css-media-queries-2.0.4.tgz#b2badfa519cb4a938acbc6d3aaa913d4949dc908"
-  integrity sha512-PAIsEK/XupCQwitjv7XxoMvYhT7EAfyzI3hsy/MyDgTvc+Ft55ctdkctJLOy6cQejaIC+zjpUL4djFVm2ivOOw==
+sort-css-media-queries@2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/sort-css-media-queries/-/sort-css-media-queries-2.1.0.tgz#7c85e06f79826baabb232f5560e9745d7a78c4ce"
+  integrity sha512-IeWvo8NkNiY2vVYdPa27MCQiR0MN0M80johAYFVxWWXQ44KU84WNxjslwBHmc/7ZL2ccwkM7/e6S5aiKZXm7jA==
 
 source-map-js@^1.0.2:
   version "1.0.2"
