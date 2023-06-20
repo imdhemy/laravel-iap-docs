@@ -33,7 +33,7 @@ $receiptResponse = Subscription::appStore()->receiptData($receipt)->verify();
 $receiptStatus = $receiptResponse->getStatus();
 
 if($receiptStatus->isValid()) {
-    $latestReceiptInfo = $receiptStatus->getLatestReceiptInfo();
+    $latestReceiptInfo = $receiptResponse->getLatestReceiptInfo();
     // You can loop all of them or either get the first one (recently purchased).
     $receiptInfo = $latestReceiptInfo[0];
 
