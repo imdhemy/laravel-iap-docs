@@ -53,36 +53,24 @@ Select provider:
  >
 ```
 
-If you didn't enable signed URLs, it will ask for your confirmation to
-generate signed URLs:
+:::caution
+If you didn't enable signed URLs in the configuration, normal unsigned URLs will be generated.
+:::
+
+Based on your answers, The command will generate URLs like the following:
 
 ```shell
-Select provider:
-  [0] All Providers
-  [1] App Store
-  [2] Google Play
- > 0
-
- Signed routes are disabled. Do you want to generate signed routes? (yes/no) [no]:
- > yes
-```
-
-Based on your answers, it will generate a table with the following columns:
-
-```shell
-+-------------+--------------------------------------------------------------------------------------+
-| Provider    | URL                                                                                  |
-+-------------+--------------------------------------------------------------------------------------+
-| App Store   | https://yourdomain.com/liap/notifications?signature=<signature>&provider=app-store   |
-| Google Play | https://yourdomain.com/liap/notifications?signature=<signature>&provider=google-play |
-+-------------+--------------------------------------------------------------------------------------+
+App Store: https://yourdomain.com/liap/notifications?signature=<signature>&provider=app-store
+Google Play: https://yourdomain.com/liap/notifications?signature=<signature>&provider=google-play
 ```
 
 The generated URLs will be used to receive the [server notifications](/docs/category/server-notifications).
 
-If the URLs start with `http://localhost`, you should modify your Laravel configuration, typically by setting the
-APP_URL environment variable to your desired domain, and rerun `php artisan liap:url`. Do _not_ manually edit the
-URLs, as that will invalidate the signature.
+
+:::caution
+This signature is bound to the current domain, for instance the generated URLs generated on `http://localhost` will not work on `https://yourdomain.com`.
+You need to set the `APP_URL` environment variable to your desired domain.
+:::
 
 ## Validating a signed route requests
 
@@ -99,4 +87,3 @@ In order to verify that an incoming request has a valid signature, you should se
 ```
 
 If the incoming request does not have a valid signature, the middleware will automatically return a `403` HTTP response.
-
