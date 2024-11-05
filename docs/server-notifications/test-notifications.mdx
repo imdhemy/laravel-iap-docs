@@ -4,3 +4,49 @@ description: "How to request and handle test notifications."
 ---
 
 # Test Notifications
+
+Both Google Play and App Store provide a way to test the server notifications, so you can verify that your server is
+correctly set up to receive and handle the notifications.
+
+## Google Play
+
+After configuring the [Google Play RTDN](https://developer.android.com/google/play/billing/getting-ready#configure-rtdn),
+and deploying your server with LIAP package enabled, You can test your configuration by using the **Send Test Message**
+in the Google Play Console. If you have not configured a backend server to consume notifications, you can use the gcloud
+command line tool to verify the configuration. For instructions on processing messages using gcloud, [see Pull the message
+from the subscription](https://cloud.google.com/pubsub/docs/publish-receive-messages-console#pull_the_message_from_the_subscription).
+
+LIAP will automatically handle the test notifications and add a log entry similar to the following:
+
+```shell
+Google Play Test Notification, version: 1.0
+```
+
+## App Store
+
+To check the status of the test App Store server notification sent to your server. You can use the folloiwing command:
+
+```shell
+php artisan liap:apple:test-notification
+```
+
+If you are testing on "sandbox" environment, you need to pass the `--sandbox` option:
+
+```shell
+php artisan liap:apple:test-notification --sandbox
+```
+
+The command will request a test notification and will show you the notification token.
+
+LIAP will automatically handle the test notifications and add a log entry similar to the following:
+
+If you are using Notifications `v1`:
+```shell
+AppStore Test Notification
+```
+
+If you are using Notifications `v2`:
+
+```shell
+AppStoreV2NotificationHandler: Test notification received
+```
