@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkmy_website=self.webpackChunkmy_website||[]).push([[9311],{3267:a=>{a.exports=JSON.parse('{"label":"docusaurus","permalink":"/laravel-iap-docs/blog/tags/docusaurus","allTagsPath":"/laravel-iap-docs/blog/tags","count":4}')}}]);

@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkmy_website=self.webpackChunkmy_website||[]).push([[1950],{7711:e=>{e.exports=JSON.parse('{"label":"hello","permalink":"/laravel-iap-docs/blog/tags/hello","allTagsPath":"/laravel-iap-docs/blog/tags","count":2}')}}]);
