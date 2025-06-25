@@ -72,16 +72,14 @@ const config = {
                     src: 'img/logo.png',
                 },
                 items: [
-                    // {
-                    //   type: 'doc',
-                    //   docId: 'intro',
-                    //   position: 'left',
-                    //   label: 'Tutorial',
-                    // },
                     {
                         href: 'https://github.com/imdhemy/laravel-iap-docs',
                         label: 'GitHub',
                         position: 'right',
+                    },
+                    {
+                        type: 'docsVersionDropdown',
+                        versions: ['current', '1.x'],
                     },
                 ],
             },
