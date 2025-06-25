@@ -6,6 +6,10 @@ const darkTheme = themes.dracula;
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
+    future: {
+        v4: true,
+        experimental_faster: true,
+    },
     title: 'Laravel In-App Purchases',
     tagline: 'The top-notch php receipt validator!',
     url: 'https://imdhemy.github.io',
