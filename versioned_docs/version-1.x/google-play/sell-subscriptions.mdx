@@ -1,0 +1,24 @@
+---
+sidebar_position: 2
+description: "A Guide to Google Play Subscription receipt validation."
+---
+
+# Sell Subscriptions
+
+A subscription is a set of benefits that a user can access during a stated time period.
+
+## Validate Receipts
+
+To validate a subscription receipt, you need to send the receipt to your server and verify it with Google Play. You can use
+the `Subscription` facade to do this.
+
+```php
+use Imdhemy\GooglePlay\Subscriptions\SubscriptionPurchase;
+use Imdhemy\Purchases\Facades\Subscription;
+
+// To verify a subscription receipt
+/** @var SubscriptionPurchase $subscriptionReceipt */
+$subscriptionReceipt = Subscription::googlePlay()->id($itemId)->token($purchaseToken)->get();
+```
+
+A success response will return a `SubscriptionPurchase` object that contains getters for all the [available fields](https://developers.google.com/android-publisher/api-ref/rest/v3/purchases.subscriptions#resource:-subscriptionpurchase).

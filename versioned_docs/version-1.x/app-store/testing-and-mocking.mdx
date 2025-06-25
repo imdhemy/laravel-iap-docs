@@ -1,0 +1,142 @@
+---
+sidebar_position: 3
+description: "How to test and mock App store iap receipts."
+---
+
+# Testing and Mocking
+
+LIAP is build with testing and mocking in mind. This means that you can test your app without actually making a purchase.
+The only thing you need to do is to mock the receipt or a server notification and then test your app.
+
+## Testing with a mocked receipt
+
+Follow the steps below to mock a receipt and test your app.
+
+Create an instance from `GuzzleHttp\Psr7\Response` with the required [response body](https://developer.apple.com/documentation/appstorereceipts/responsebody).
+
+Let's create a mock response for a `sanbox` receipt, with `status` of `0` and some details on a
+`latest_receipt_info` array.
+
+```php
+<?php
+
+namespace Tests\Feature;
+
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Psr7\Response;
+use Imdhemy\AppStore\ClientFactory;
+use Imdhemy\AppStore\Exceptions\InvalidReceiptException;
+use Imdhemy\Purchases\Facades\Product;
+use JsonException;
+use Tests\TestCase;
+
+class ExampleTest extends TestCase
+{
+    /**
+     * A basic test example.
+     *
+     * @return void
+     * @throws GuzzleException
+     * @throws InvalidReceiptException|JsonException
+     */
+    public function test_example(): void
+    {
+        // Create the expected body
+        $responseBody = [
+            'environment' => 'Sandbox',
+            'status' => 0,
+            'latest_receipt_info' => [
+                [
+                    'product_id' => 'fake_product_id',
+                    'quantity' => '1',
+                    'transaction_id' => 'fake_transaction_id',
+                    // other fields omitted
+                ],
+            ],
+            // other fields omitted
+        ];
+
+        // Create the response instance. It requires to JSON encode the body.
+        $responseMock = new Response(200, [], json_encode($responseBody, JSON_THROW_ON_ERROR));
+
+        // Use the client factory to mock the response.
+        $client = ClientFactory::mock($responseMock);
+
+        // --------------------------------------------------------------
+        // The created client could be injected into a service
+        // --------------------------------------------------------------
+        // The part is up to you as a developer.
+        //
+        // Inside that service you can use the client as follows
+        $verifyResponse = Product::appStore($client)->receiptData('fake_receipt_data')->verifyReceipt();
+        // The returned response will contain the data from the response body you provided in the first line.
+    }
+}
+
+```
+
+The **Subscription** Facade works the same way.
+
+## Testing with a Mock Notification
+
+Once a service notification is received, it will trigger an `EventPurchaseEvent` event. You can test this functionality
+the same way you test events in Laravel.
+
+You can find the notification attributes on [Apple's documentation](https://developer.apple.com/documentation/appstoreservernotifications/responsebodyv1).
+
+```php
+<?php
+
+namespace Tests\Feature;
+
+use Illuminate\Support\Facades\Event;
+use Imdhemy\Purchases\Events\AppStore\DidChangeRenewalStatus;
+use Tests\TestCase;
+
+class ExampleTest extends TestCase
+{
+    /**
+     * A basic test example.
+     *
+     * @return void
+     */
+    public function test_example(): void
+    {
+        Event::fake();
+
+        $data = [
+            'unified_receipt' => [],
+            'notification_type' => 'DID_CHANGE_RENEWAL_STATUS',
+        ];
+
+        $uri = route('liap.serverNotifications') . '?provider=app-store';
+
+        $this->post($uri, $data);
+
+        Event::AssertDispatched(DidChangeRenewalStatus::class);
+    }
+}
+
+```
+
+## Mocking multiple responses
+
+The client factory can be used to mock multiple responses.
+
+```php
+ $client = ClientFactory::mockQueue([
+           $response1, // GuzzleHttp\Psr7\Response
+           $response2, // GuzzleHttp\Psr7\Response
+           $requestException, // GuzzleHttp\Exception\RequestException
+           // and so on...
+       ]);
+```
+The responses will be returned in the order they are provided.
+
+You can also mock an error response.
+
+```php
+use GuzzleHttp\Exception\RequestException;
+
+$client = ClientFactory::mockError(new RequestException($message, $request));
+```

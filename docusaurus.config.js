@@ -6,6 +6,10 @@ const darkTheme = themes.dracula;
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
+    future: {
+        v4: true,
+        experimental_faster: true,
+    },
     title: 'Laravel In-App Purchases',
     tagline: 'The top-notch php receipt validator!',
     url: 'https://imdhemy.github.io',
@@ -68,16 +72,14 @@ const config = {
                     src: 'img/logo.png',
                 },
                 items: [
-                    // {
-                    //   type: 'doc',
-                    //   docId: 'intro',
-                    //   position: 'left',
-                    //   label: 'Tutorial',
-                    // },
                     {
                         href: 'https://github.com/imdhemy/laravel-iap-docs',
                         label: 'GitHub',
                         position: 'right',
+                    },
+                    {
+                        type: 'docsVersionDropdown',
+                        versions: ['current', '1.x'],
                     },
                 ],
             },

@@ -1,0 +1,69 @@
+# Upgrade
+
+Upgrading from the Pre-release version `0.x` to the version `1.x` LTS.
+
+## High Impact Changes
+
+### Updating dependencies
+
+#### PHP version
+
+PHP 7.4 or higher is required along with extensions `json` and `openssl`.
+
+#### Composer Dependencies
+
+You need to use the latest version of the package.
+
+```bash
+composer require imdhemy/laravel-purchases
+```
+
+### Service Providers
+
+The `Imdhemy\Purchases\ServiceProvider` was removed, and replaced by `Imdhemy\Purchases\ServiceProviders\LiapServiceProvider`.
+
+### Configuration
+
+The old configuration file `purchase.php` is replaced with `liap.php`. You need to publish the new configuration file.
+
+```bash
+php artisan liap:config:publish
+```
+
+### Routes
+The old routes for Google Play and App Store are replaced with new ones. You can use the following command to show them.
+
+```bash
+php artisan liap:url
+```
+Find more information about the new routing [here](/docs/get-started/routing).
+
+### Value Objects
+
+The App store value object class `ReceiptInfo` if replaced with `LatesReceiptInfo`.
+
+### Public constants in Google Play removed
+
+- `DeveloperNotification` all constants are removed.
+- `OneTimePurchaseNotification` the `ONE_TIME_PRODUCT_CANCELED` constant is removed.
+- `CURRENCY_CODESS` constant is removed from the `Price` value object class.
+
+## Medium Impact Changes
+
+### Return data types
+
+- The acknowledge method in `GooglePlay` and `AppStore` return type is changed from `void` to `EmptyResponse`.
+
+### Removed classes
+
+If your code uses any of the following classes, you need to use getter methods and public constants instead.
+
+- The class `Imdhemy\GooglePlay\Subscriptions\Subscription` is replaced by `Imdhemy\GooglePlay\Subscriptions\SubscriptionClient`.
+- The class `AcknowledgmentState` is removed.
+- The class `CancelReason` is removed.
+- The class `CancelSurveyReason` is removed.
+- The class `ConsumptionState` is removed.
+- The class `PriceChangeState` is removed.
+- The class `PromotionType` is removed.
+- The class `PurchaseState` is removed.
+- The class `PurchaseType` is removed.

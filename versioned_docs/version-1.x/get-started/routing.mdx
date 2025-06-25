@@ -1,0 +1,89 @@
+---
+sidebar_position: 2
+description: "How to get a secure server notifications endpoint."
+---
+
+# Routing
+
+## Introduction
+
+Liap provides a `POST` endpoint `liap.serverNotifications` to receive
+the [Server notifications](/docs/category/server-notifications) from different providers. This route uses a query
+variable `provider` to define the service provider.
+
+| Provider    | URI                                        | Query Value |
+|-------------|--------------------------------------------|-------------|
+| Google Play | `/liap/notifications?provider=google-play` | google-play |
+| App Store   | `/liap/notifications?provider=app-store`   | app-store   |
+
+You can add custom configurations to this endpoint through the `routing` key in the config file `liap.php`. For
+instance, you can assign a [middleware](https://laravel.com/docs/middleware) or add a custom route prefix.
+
+```php title="config/liap.php"
+[
+    'routing' => [
+        'signed' => false,
+        'middleware' => 'my_middleware',
+        'prefix' => 'my_prefix'
+    ],
+
+    // .. Other configurations are trimmed
+]
+```
+
+## Generate a signed URL
+
+In order to set up the server notifications, the service provider asks you to provide a URL to receive the server
+notifications. LIAP allows you to easily create a "signed" URL which have a "signature" hash appended to the query
+string. This allows LIAP/Laravel to verify that the URL has not been modified since it was created.
+
+You can generate them using the following composer command:
+
+```shell
+php artisan liap:url
+```
+
+It will ask for the provider:
+
+```shell
+Select provider:
+  [0] All Providers
+  [1] App Store
+  [2] Google Play
+ >
+```
+
+:::caution
+If you didn't enable signed URLs in the configuration, normal unsigned URLs will be generated.
+:::
+
+Based on your answers, The command will generate URLs like the following:
+
+```shell
+App Store: https://yourdomain.com/liap/notifications?signature=<signature>&provider=app-store
+Google Play: https://yourdomain.com/liap/notifications?signature=<signature>&provider=google-play
+```
+
+The generated URLs will be used to receive the [server notifications](/docs/category/server-notifications).
+
+
+:::caution
+This signature is bound to the current domain, for instance the generated URLs generated on `http://localhost` will not work on `https://yourdomain.com`.
+You need to set the `APP_URL` environment variable to your desired domain.
+:::
+
+## Validating a signed route requests
+
+In order to verify that an incoming request has a valid signature, you should set the `routing.signed` key to `true`.
+
+```php title="config/liap.php"
+[
+    'routing' => [
+        'signed' => true, // This is false by default
+    ],
+
+    // .. Other configurations are trimmed
+]
+```
+
+If the incoming request does not have a valid signature, the middleware will automatically return a `403` HTTP response.

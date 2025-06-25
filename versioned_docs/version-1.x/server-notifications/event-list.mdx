@@ -1,0 +1,83 @@
+---
+sidebar_position: 4
+description: "List of available events"
+---
+
+# Available Events
+
+This is a list of all supported events triggered by Liap once a server
+notification is received. Each event is documented below, and you can follow
+this guide to learn [how to use them](/docs/get-started/event-listeners).
+
+## App Store Events
+
+:::success 🎉 New in 1.2.x
+Both App Store server notifications `v1` and `v2` are supported.
+:::
+
+:::info 📝 Note
+The `v2` Event names are written in **bold**. The `v1` Event names are written in _italic_.
+If an event name is **_bold and italic_**, it means that the event is available in both `v1` and `v2`.
+:::
+
+| Event                                   | Namespace                                                  | Description                                                                                                                                                                                          |
+|-----------------------------------------|------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|                                         | Following events are available in `v1` and `v2`            |                                                                                                                                                                                                      |
+| **_Consumption request_** `1 & 2`       | `Imdhemy\Purchases\Events\AppStore\ConsumptionRequest`     | The customer initiated a refund request for a consumable in-app purchase, and the App Store is requesting that you provide consumption data.Apple support requested the user to consume the product. |
+| **_Did change renewal pref_** `1 & 2`   | `Imdhemy\Purchases\Events\AppStore\DidChangeRenewalPref`   | The customer made a change in their subscription plan that takes effect at the next renewal. The currently active plan isn’t affected.                                                               |
+| **_Did change renewal status_** `1 & 2` | `Imdhemy\Purchases\Events\AppStore\DidChangeRenewalStatus` | Indicates a change in the subscription renewal status.                                                                                                                                               |
+| **_Did fail to renew_** `1 & 2`         | `Imdhemy\Purchases\Events\AppStore\DidFailToRenew`         | Indicates a subscription that failed to renew due to a billing issue.                                                                                                                                |
+| **_Did renew_** `1 & 2`                 | `Imdhemy\Purchases\Events\AppStore\DidRenew`               | Indicates that a customer’s subscription has successfully auto-renewed for a new transaction period.                                                                                                 |
+| **_Refund_** `1 & 2`                    | `Imdhemy\Purchases\Events\AppStore\Refund`                 | Indicates that the App Store successfully refunded a transaction for a consumable in-app purchase, a non-consumable in-app purchase, or a non-renewing subscription.                                 |
+| **_Revoke_** `1 & 2`                    | `Imdhemy\Purchases\Events\AppStore\Revoke`                 | Indicates that an in-app purchase the user was entitled to through Family Sharing is no longer available through sharing.                                                                            |
+|                                         | Following events are available in `v2`                     |                                                                                                                                                                                                      |
+| **Expired** `2`                         | `Imdhemy\Purchases\Events\AppStore\Expired`                | Indicates that a subscription has expired.                                                                                                                                                           |
+| **Grace period expired** `2`            | `Imdhemy\Purchases\Events\AppStore\GracePeriodExpired`     | Indicates that the billing grace period has ended without renewing the subscription                                                                                                                  |
+| **Offer redeemed** `2`                  | `Imdhemy\Purchases\Events\AppStore\OfferRedeemed`          | Indicates that a customer redeemed an offer code.                                                                                                                                                    |
+| **Price increase** `2`                  | `Imdhemy\Purchases\Events\AppStore\PriceIncrease`          | Indicates that the system has informed the user of an auto-renewable subscription price increase.                                                                                                    |
+| **Refund declined** `2`                 | `Imdhemy\Purchases\Events\AppStore\RefundDeclined`         | Indicates that the App Store declined a refund request initiated by the app developer.                                                                                                               |
+| **Renewal extended** `2`                | `Imdhemy\Purchases\Events\AppStore\RenewalExtended`        | Indicates that the App Store extended the subscription renewal date that the developer requested.                                                                                                    |
+| **Subscribed** `2`                      | `Imdhemy\Purchases\Events\AppStore\Subscribed`             | Indicates that the user subscribed to a product.                                                                                                                                                     |
+|                                         | Following events are available in `v1`                     |                                                                                                                                                                                                      |
+| Cancel                                  | `Imdhemy\Purchases\Events\AppStore\Cancel`                 | Apple support cancelled the auto-renewable subscription and the user received a refund.                                                                                                              |
+| Did recover                             | `Imdhemy\Purchases\Events\AppStore\DidRecover`             | Indicates a successful automatic renewal of an expired subscription that failed to renew in the past.                                                                                                |
+| Initial buy                             | `Imdhemy\Purchases\Events\AppStore\InitialBuy`             | Occurs at the user’s initial purchase of the subscription.                                                                                                                                           |
+| Interactive renewal                     | `Imdhemy\Purchases\Events\AppStore\InteractiveRenewal`     | Indicates the customer renewed a subscription interactively, either by using your app’s interface, or on the App Store in the account’s Subscriptions settings.                                      |
+| Price increase consent                  | `Imdhemy\Purchases\Events\AppStore\PriceIncreaseConsent`   | Indicates that the App Store has started asking the customer to consent to your app’s auto-renewable subscription price increase that requires consent.                                              |
+| ~~Renewal~~                             | `Imdhemy\Purchases\Events\AppStore\Renewal`                | **DEPRECATED** Use **Did recover** instead.                                                                                                                                                          |
+
+## Google Play Events
+
+| Event                               | Namespace                                                              | Description                                                                                                                                             |
+|-------------------------------------|------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Subscription recovered              | `Imdhemy\Purchases\Events\GooglePlay\SubscriptionRecovered`            | A subscription was recovered from account hold.                                                                                                         |
+| Subscription renewed                | `Imdhemy\Purchases\Events\GooglePlay\SubscriptionRenewed`              | An active subscription was renewed.                                                                                                                     |
+| Subscription canceled               | `Imdhemy\Purchases\Events\GooglePlay\SubscriptionCanceled`             | A subscription was either voluntarily or involuntarily cancelled. For voluntary cancellation, sent when the user cancels.                               |
+| Subscription purchased              | `Imdhemy\Purchases\Events\GooglePlay\SubscriptionPurchased`            | A new subscription was purchased.                                                                                                                       |
+| Subscription on hold                | `Imdhemy\Purchases\Events\GooglePlay\SubscriptionOnHold`               | A subscription has entered account hold (if enabled).                                                                                                   |
+| Subscription in grace period        | `Imdhemy\Purchases\Events\GooglePlay\SubscriptionInGracePeriod`        | A subscription has entered grace period (if enabled).                                                                                                   |
+| Subscription restarted              | `Imdhemy\Purchases\Events\GooglePlay\SubscriptionRestarted`            | User has restored their subscription from Play > Account > Subscriptions. The subscription was canceled but had not expired yet when the user restores. |
+| Subscription price change confirmed | `Imdhemy\Purchases\Events\GooglePlay\SubscriptionPriceChangeConfirmed` | A subscription price change has successfully been confirmed by the user.                                                                                |
+| Subscription deferred               | `Imdhemy\Purchases\Events\GooglePlay\SubscriptionDeferred`             | A subscription's recurrence time has been extended.                                                                                                     |
+| Subscription paused                 | `Imdhemy\Purchases\Events\GooglePlay\SubscriptionPaused`               | A subscription has been paused.                                                                                                                         |
+| Subscription pause schedule changed | `Imdhemy\Purchases\Events\GooglePlay\SubscriptionPauseScheduleChanged` | A subscription pause schedule has been changed.                                                                                                         |
+| Subscription revoked                | `Imdhemy\Purchases\Events\GooglePlay\SubscriptionRevoked`              | A subscription has been revoked from the user before the expiration time.                                                                               |
+| Subscription expired                | `Imdhemy\Purchases\Events\GooglePlay\SubscriptionExpired`              | A subscription has expired.                                                                                                                             |
+
+### How to track refunds in Google Play
+
+There are two ways for a user to [request refund](https://support.google.com/googleplay/answer/2479637?hl=en)
+for a subscription in Google Play: either by sending a request to Google or
+by contacting the developer.
+
+If a user requests a refund from the developer, you as a developer can keep
+track of the process. However, if a user requests a refund from Google, you
+will not receive any notification if the refund is successful or not.
+
+From the developers experience, there is an indirect way to track refunds.
+after a subscription is refunded two real-time events are sent:
+`SubscriptionCanceled` followed by `SubscriptionRevoked`.
+
+On your server, you can treat the `SubscriptionCanceled` event as a normal
+cancel, then if that event is followed by a `SubscriptionRevoked` event, you
+can mark it as a refund.
