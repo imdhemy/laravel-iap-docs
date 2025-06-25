@@ -1,0 +1,55 @@
+---
+sidebar_position: 3
+description: "How to test and mock Google Play iap receipts."
+---
+
+# Testing and Mocking
+
+LIAP is build with testing and mocking in mind. This means that you can test your app without actually making a purchase.
+The only thing you need to do is to mock the receipt or a server notification and then test your app.
+
+## Testing with a mocked receipt
+
+Follow the steps below to mock a receipt and test your app.
+
+Create an instance from the `GuzzleHttp\Psr7\Response` with the required response body, for instance a [subscription purchase resource](https://developers.google.com/android-publisher/api-ref/rest/v3/purchases.subscriptions#SubscriptionPurchase).
+
+If you are looking for a code snippet example, Let's mock an auto-renewing subscription purchase.
+
+```php
+<?php
+
+namespace Test\Feature;
+
+use GuzzleHttp\Psr7\Response;
+use Imdhemy\GooglePlay\ClientFactory;
+use \Imdhemy\Purchases\Facades\Subscription;
+
+
+class ExampleTest extends TestCase
+{
+  public function test_example(): void
+  {
+    $responseBody = [
+      "kind" => "androidpublisher#subscriptionPurchase",
+      "startTimeMillis" => "1580000000000",
+      "expiryTimeMillis" => "1580000000000",
+      "autoRenewing" => true,
+      "priceCurrencyCode" => "USD",
+      "priceAmountMicros" => "1000000",
+      "countryCode" => "US",
+       // Other fields are omitted for brevity
+    ];
+
+    $response = new Response(200, [], json_encode($responseBody));
+    $client = ClientFactory::mock($response);
+
+    // use the client to verify the purchase
+    // The returned attributes are the same as the mocked response
+
+    // THE FOLLOWING LINE SHOULD BE IN YOUR CLIENT CODE
+    $receipt = Subscription::googlePlay($client)->id($itemId)->token($token)->get();
+  }
+}
+
+```
