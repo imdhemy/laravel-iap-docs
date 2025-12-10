@@ -27,7 +27,7 @@ use Imdhemy\Purchases\Facades\Subscription;
 // Verifiy the receipt on App Store servers.
 // For non-renewable subscriptions, you can use the `verifyReceipt` method.
 // Subscription::appStore()->receiptData($receipt)->verifyReceipt();
-$receiptResponse = Subscription::appStore()->receiptData($receipt)->verify();
+$receiptResponse = Subscription::appStore()->receiptData($receipt)->verifyRenewable();
 
 // Get the receipt status
 $receiptStatus = $receiptResponse->getStatus();
