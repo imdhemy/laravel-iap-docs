@@ -1,0 +1,40 @@
+---
+sidebar_position: 2
+description: "App Store server notifications guide"
+---
+
+# App Store Server Notifications
+
+:::success 🎉 New in 1.2.x
+Both App Store server notifications `v1` and `v2` are supported.
+:::
+
+App Store Server Notifications should be set up in App Store Connect with
+the URL provided by LIAP. Refer to [Generating signed URLs](/docs/1.x/get-started/routing#generate-a-signed-url) to
+learn how to
+generate this URL.
+
+The generated URL will something like this:
+
+```https://<your-site>/liap/notifications?provider=app-store```.
+
+Based on your configuration, it may be altered to include the `signature`
+and other
+[routing](/docs/1.x/get-started/routing) parameters.
+
+1. Generate app store URL.
+2. Log in to [App Store Connect](https://appstoreconnect.apple.com) and select your app.
+3. Under the **App Information** > **App Store Server Notifications** section,
+paste
+the URL you generated in step 1 in both the **Production Server URL** and the
+**Sandbox Server URL** fields.
+4. Select either version `1` or `2` for the **Version** field.
+
+![App Store Server Notifications](/img/server-notifications/app-store-screenshot.png)
+
+
+:::info
+If your server requires IP addresses to be on an allow list,
+add the IP address subnet 17.0.0.0/8 to allow your server to receive notifications
+from the App Store server. This subnet applies to both the sandbox and the production environments
+:::

@@ -1,8 +1,9 @@
 // @ts-check
-// Note: type annotations allow type checking and IDEs autocompletion
 const {themes} = require('prism-react-renderer');
-const lightTheme = themes.github;
-const darkTheme = themes.dracula;
+const createRegistryConfig = require('./versioned-docs/registry/registry');
+
+const siteUrl = process.env.SITE_URL ?? 'https://imdhemy.github.io';
+const registryConfig = createRegistryConfig();
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -10,51 +11,32 @@ const config = {
     v4: true,
     experimental_faster: true,
   },
-  markdown: {
-    hooks: {
-      onBrokenMarkdownLinks: 'throw',
-    },
-  },
   title: 'Laravel In-App Purchases',
   tagline: 'The top-notch php receipt validator!',
-  url: 'https://imdhemy.github.io',
+  url: siteUrl,
   baseUrl: '/laravel-iap-docs/',
   onBrokenLinks: 'throw',
   favicon: 'img/favicon.ico',
   trailingSlash: false,
-
-  // GitHub pages deployment config.
-  // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'imdhemy', // Usually your GitHub org/user name.
-  projectName: 'laravel-iap-docs', // Usually your repo name.
-
-  // Even if you don't use internalization, you can use this field to set useful
-  // metadata like html lang. For example, if your site is Chinese, you may want
-  // to replace "en" with "zh-Hans".
+  organizationName: 'imdhemy',
+  projectName: 'laravel-iap-docs',
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+    },
+  },
   i18n: {
     defaultLocale: 'en',
     locales: ['en'],
   },
-
+  customFields: registryConfig.customFields,
   presets: [
     [
       'classic',
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
-        docs: {
-          sidebarPath: require.resolve('./sidebars.js'),
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl:
-              'https://github.com/imdhemy/laravel-iap-docs/blob/master/',
-        },
-        blog: {
-          showReadingTime: true,
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl:
-              'https://github.com/imdhemy/laravel-iap-docs/blob/master/',
-        },
+        docs: false,
+        blog: false,
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
@@ -65,79 +47,100 @@ const config = {
       }),
     ],
   ],
-
+  plugins: [
+    ...registryConfig.docsPlugins,
+    [
+      '@easyops-cn/docusaurus-search-local',
+      {
+        indexDocs: true,
+        indexBlog: false,
+        indexPages: true,
+        hashed: true,
+        language: ['en'],
+        docsRouteBasePath: registryConfig.search.docsRouteBasePath,
+        searchContextByPaths: registryConfig.search.searchContextByPaths,
+        hideSearchBarWithNoSearchContext: true,
+      },
+    ],
+  ],
   themeConfig:
-  /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
-      ({
-        navbar: {
-          title: 'Home',
-          logo: {
-            alt: 'LIAP',
-            src: 'img/logo.png',
+    /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
+    ({
+      navbar: {
+        title: 'Home',
+        logo: {
+          alt: 'LIAP',
+          src: 'img/logo.png',
+          href: '/',
+        },
+        items: [
+          {
+            href: registryConfig.customFields.docsIntroPath,
+            label: 'Documentation',
+            position: 'left',
           },
-          items: [
-            {
-              href: 'https://github.com/imdhemy/laravel-iap-docs',
-              label: 'GitHub',
-              position: 'right',
-            },
-            {
-              type: 'docsVersionDropdown',
-              versions: ['current', '1.x'],
-            },
-          ],
-        },
-        footer: {
-          style: 'dark',
-          links: [
-            {
-              title: 'Docs',
-              items: [
-                {
-                  label: 'Tutorial',
-                  to: '/docs/intro',
-                },
-              ],
-            },
-            {
-              title: 'Community',
-              items: [
-                {
-                  label: 'Stack Overflow',
-                  href: 'https://stackoverflow.com/questions/tagged/liap',
-                },
-                {
-                  label: 'Laravel Discussions',
-                  href: 'https://github.com/imdhemy/laravel-in-app-purchases/discussions',
-                },
-                {
-                  label: 'App Store Discussions',
-                  href: 'https://github.com/imdhemy/appstore-iap/discussions',
-                },
-                {
-                  label: 'Google Play Discussions',
-                  href: 'https://github.com/imdhemy/google-play-billing/discussions',
-                },
-              ],
-            },
-            {
-              title: 'More',
-              items: [
-                {
-                  label: 'Buy me a coffee',
-                  href: 'https://github.com/sponsors/imdhemy',
-                },
-              ],
-            },
-          ],
-          copyright: `Copyright © ${new Date().getFullYear()} LIAP. Built with Love ❤ ️and PHP 🐘.`,
-        },
-        prism: {
-          additionalLanguages: ['php'],
-          theme: lightTheme,
-          darkTheme: darkTheme,
-        },
-      }),
+          {
+            type: 'custom-version-switcher',
+            position: 'right',
+          },
+          {
+            href: 'https://github.com/imdhemy/laravel-iap-docs',
+            label: 'GitHub',
+            position: 'right',
+          },
+        ],
+      },
+      footer: {
+        style: 'dark',
+        links: [
+          {
+            title: 'Docs',
+            items: [
+              {
+                label: 'Tutorial',
+                to: registryConfig.customFields.docsIntroPath,
+              },
+            ],
+          },
+          {
+            title: 'Community',
+            items: [
+              {
+                label: 'Stack Overflow',
+                href: 'https://stackoverflow.com/questions/tagged/liap',
+              },
+              {
+                label: 'Laravel Discussions',
+                href: 'https://github.com/imdhemy/laravel-in-app-purchases/discussions',
+              },
+              {
+                label: 'App Store Discussions',
+                href: 'https://github.com/imdhemy/appstore-iap/discussions',
+              },
+              {
+                label: 'Google Play Discussions',
+                href: 'https://github.com/imdhemy/google-play-billing/discussions',
+              },
+            ],
+          },
+          {
+            title: 'More',
+            items: [
+              {
+                label: 'Buy me a coffee',
+                href: 'https://github.com/sponsors/imdhemy',
+              },
+            ],
+          },
+        ],
+        copyright: `Copyright © ${new Date().getFullYear()} LIAP.`,
+      },
+      prism: {
+        additionalLanguages: ['php'],
+        theme: themes.github,
+        darkTheme: themes.dracula,
+      },
+    }),
 };
 
 module.exports = config;

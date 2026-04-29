@@ -1,8 +1,0 @@
-{
-  "label": "Server Notifications",
-  "position": 5,
-  "link": {
-    "type": "generated-index",
-    "description": "Monitor in-app purchase events in real time with server notifications from the App Store."
-  }
-}
