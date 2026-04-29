@@ -1,0 +1,107 @@
+---
+sidebar_position: 1
+description: "Convert a Google Play price into localized regional prices."
+---
+
+# Convert Region Prices
+
+Use the Google Play Billing package to calculate localized prices before you create or update Google Play product and subscription pricing.
+
+The `ConvertRegionPrices` application service wraps the Google Play Developer API
+[`monetization.convertRegionPrices`](https://developers.google.com/android-publisher/api-ref/rest/v3/monetization/convertRegionPrices)
+method. It accepts one tax-exclusive source price and returns the prices Google Play calculates for supported regions, plus
+the USD and EUR prices used for other regions.
+
+## Convert a Price
+
+Create a Google Play HTTP client, build the request factory, and execute the query with your app package name and source
+price.
+
+```php
+use Imdhemy\GooglePlay\Infrastructure\Http\ClientFactory;
+use Imdhemy\GooglePlay\Infrastructure\Transformer\{Normalizer, Serializer};
+use Imdhemy\GooglePlay\Monetization\Application\ConvertRegionPrices\{
+    ConvertRegionPrices,
+    ConvertRegionPricesQuery
+};
+use Imdhemy\GooglePlay\Monetization\Infrastructure\ConvertRegionPrices\GooglePlayConvertRegionPricesRequestFactory;
+use Imdhemy\GooglePlay\ValueObjects\Money;
+
+$client = ClientFactory::create();
+$requestFactory = new GooglePlayConvertRegionPricesRequestFactory(Serializer::create());
+$normalizer = Normalizer::create();
+
+$convertRegionPrices = new ConvertRegionPrices($client, $requestFactory, $normalizer);
+$query = new ConvertRegionPricesQuery(
+    packageName: 'com.example.app',
+    price: new Money(
+        currencyCode: 'USD',
+        units: '9',
+        nanos: 990000000,
+    ),
+);
+
+$convertedPrices = $convertRegionPrices->execute($query);
+```
+
+The `Money` value uses the same shape as the Google Play API:
+
+- `currencyCode` is the ISO 4217 currency code.
+- `units` is the whole-unit part of the amount as a string.
+- `nanos` is the fractional part in nanounits.
+
+## Include a Product Tax Category
+
+Pass `productTaxCategoryCode` when the price calculation should use a specific Google Play product tax category.
+
+```php
+$convertedPrices = $convertRegionPrices->execute(new ConvertRegionPricesQuery(
+    packageName: 'com.example.app',
+    price: new Money(
+        currencyCode: 'USD',
+        units: '9',
+        nanos: 990000000,
+    ),
+    productTaxCategoryCode: 'PTC023DIG',
+));
+```
+
+When no tax category is provided, Google Play uses the default product tax category for the calculation.
+
+## Read the Converted Prices
+
+The service returns an `Imdhemy\GooglePlay\Monetization\Domain\ConvertedPrices` object.
+
+```php
+$germany = $convertedPrices->convertedRegionPrices['DE'];
+
+$currency = $germany->price->currencyCode;
+$units = $germany->price->units;
+$nanos = $germany->price->nanos;
+$taxUnits = $germany->taxAmount->units;
+
+$otherRegionsUsd = $convertedPrices->convertedOtherRegionsPrice->usdPrice;
+$otherRegionsEur = $convertedPrices->convertedOtherRegionsPrice->eurPrice;
+$regionVersion = $convertedPrices->regionVersion->version;
+```
+
+`convertedRegionPrices` is keyed by region code. Each entry contains the region code, the converted tax-inclusive price,
+and the tax amount included in that converted price. `convertedOtherRegionsPrice` contains the USD and EUR prices Google
+Play uses for countries where local currency pricing is not supported.
+
+## Handle Conversion Failures
+
+Wrap calls in a `try` block when the result affects a publishing workflow.
+
+```php
+use Imdhemy\GooglePlay\Monetization\Application\ConvertRegionPrices\ConvertRegionPricesException;
+
+try {
+    $convertedPrices = $convertRegionPrices->execute($query);
+} catch (ConvertRegionPricesException $exception) {
+    // Handle the failed conversion in your application.
+}
+```
+
+The package wraps request creation, HTTP client, and response normalization failures in `ConvertRegionPricesException`.
+Google Play still owns the pricing rules, exchange rates, region version, and tax-category behavior used by the API.
