@@ -1,0 +1,124 @@
+---
+sidebar_position: 3
+description: "Learn how to use liap event listeners."
+---
+
+# Event Listeners
+
+If you enabled the [server notifications](/docs/1.x/category/server-notifications)
+on your IAP provider control panel, LIAP will trigger a purchase event once a
+notification is received.
+
+## Creating an Event Listener
+
+Your application should create an event listener to handle the different
+states of the subscription life cycle. Each state update will trigger a
+[specific event](/docs/1.x/server-notifications/event-list) which you can listen to as follows:
+
+```php title="app\Listeners\AutoRenewSubscription.php"
+namespace App\Listeners;
+
+use Imdhemy\Purchases\Events\GooglePlay\SubscriptionRenewed;
+
+class AutoRenewSubscription
+{
+  /**
+  * Auto-renews the subscription.
+  *
+  * @param SubscriptionRenewed $event
+  * @return void
+  */
+  public function handle(SubscriptionRenewed $event) {
+    // Do something with the subscription
+  }
+}
+
+```
+
+Add the created listener to the associated event key.
+
+```php title="config/liap.php"
+
+[
+  // .. Other configurations are trimmed out for brevity
+  'eventListeners' => [
+    SubscriptionRenewed::class => [\App\Listeners\AutoRenewSubscription::class],
+  ],
+]
+
+```
+
+## Accessing the Event Data
+
+All triggered events implement
+`Imdhemy\Purchases\Contracts\PurchaseEventContract` interface, which allows
+you to access to the notification data through the `getServerNotification()` method.
+
+The server notification in turn gives you access to the related subscription
+through the `getSubscription()` method.
+
+The subscription instance gives you access to the following methods:
+
+| Method                        | Description                                                                                                                  |
+|-------------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| `getExpiryTime()`             | Returns the subscription expiry time.                                                                                        |
+| `getItemId()`                 | Returns the subscription item ID.                                                                                            |
+| `getProvider()`               | Returns the subscription provider. (`'app_store'` or `'google_play'`)                                                        |
+| `getUniqueIdentifier()`       | Returns the subscription unique identifier.                                                                                  |
+| `getProviderRepresentation()` | Returns the subscription provider original representation. This is useful for accessing extra subscription data if required. |
+
+## Handling an event example
+
+Below is an example of how to handle an incoming purchase event:
+
+```php title="app\Listeners\AutoRenewSubscription.php"
+namespace App\Listeners;
+
+use Imdhemy\Purchases\Events\GooglePlay\SubscriptionRenewed;
+use App\Repositories\SubscriptionRepository;
+use App\User;
+
+class AutoRenewSubscription
+{
+     /**
+      * @param SubscriptionRepository
+      */
+     public function __construct(SubscriptionRepository $subscriptionRepository)
+     {
+         $this->subscriptionRepository = $subscriptionRepository;
+     }
+
+    /**
+    * Auto-renews the subscription.
+    *
+    * @param SubscriptionRenewed $event
+    * @return void
+    */
+    public function handle(SubscriptionRenewed $event)
+    {
+       // The following data can be retrieved from the event
+       $subscription = $event->getServerNotification()->getSubscription();
+       $uniqueIdentifier = $subscription->getUniqueIdentifier();
+       $expirationTime = $subscription->getExpiryTime();
+
+       // The following steps are up to you, this is only an imagined scenario.
+       $subscription = $this->subscriptionRepository->find($uniqueIdentifier);
+       $subscription->setExpiryTime($expirationTime->getCarbon());
+       $subscription->save();
+
+        // Let's say you want to send a notification to the user
+       $this->notifyUserAboutUpdate($subscription->getUser());
+    }
+
+    /**
+     * Notify the user about the subscription update.
+     *
+     * @param User $user
+     * @return void
+     */
+    private function notifyUserAboutUpdate($user)
+    {
+        // Send an email to the user
+    }
+}
+```

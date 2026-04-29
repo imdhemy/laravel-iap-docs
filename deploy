@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-GIT_USER=imdhemy npm run deploy
