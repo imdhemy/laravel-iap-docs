@@ -1,0 +1,8 @@
+{
+  "label": "Monetization",
+  "position": 4,
+  "link": {
+    "type": "generated-index",
+    "description": "Work with Google Play monetization APIs from the Google Play Billing package."
+  }
+}
