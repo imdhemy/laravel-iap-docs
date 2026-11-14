@@ -1,0 +1,192 @@
+---
+sidebar_position: 5
+description: "How to use Google Play Billing outside Laravel."
+---
+
+# Usage outside Laravel
+
+LIAP is a Laravel wrapper. If you are on CodeIgniter, Symfony, or a plain PHP
+application, use the [Google Play Billing package](https://github.com/imdhemy/google-play-billing)
+directly. It talks to the Google Play Developer API and has no Laravel dependency.
+It requires PHP 8.4 or later.
+
+## Installation
+
+```bash
+composer require imdhemy/google-play-billing
+```
+
+## Credentials
+
+Create a Google Cloud service account, enable the Google Play Developer API on
+that project, and download a JSON key. Then invite the service account in
+Play Console under **Users and permissions**, and grant:
+
+- **View financial data, orders, and cancellation survey responses**
+- **Manage orders and subscriptions**
+
+Step-by-step screenshots are in the [Google Play credentials guide](/docs/1.x/credentials/google-play).
+See also [Google's API setup guide](https://developers.google.com/android-publisher/getting_started).
+
+Point Application Default Credentials at the key file, or pass the decoded JSON
+to the client factory.
+
+```dotenv
+GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/service-account.json
+```
+
+```php
+use Imdhemy\GooglePlay\Infrastructure\Http\ClientFactory;
+
+$client = ClientFactory::create();
+```
+
+To use a key file without relying on the environment variable:
+
+```php
+use Imdhemy\GooglePlay\Infrastructure\Http\ClientFactory;
+
+$credentials = json_decode(
+    file_get_contents('/absolute/path/to/service-account.json'),
+    true,
+    flags: JSON_THROW_ON_ERROR,
+);
+
+$client = ClientFactory::create($credentials);
+```
+
+The factory authenticates requests with the `https://www.googleapis.com/auth/androidpublisher`
+scope. If calls fail with HTTP 401 and a message about insufficient permissions,
+the service account is usually missing the Play Console rights above, or the
+invitation has not finished propagating (this can take up to 36 hours).
+
+## Verify a subscription
+
+Create a `SubscriptionService` and call `get()` with your application package
+name and the purchase token from the billing flow. No subscription product ID
+is required. The method uses `purchases.subscriptionsv2.get`.
+
+```php
+use Imdhemy\GooglePlay\Domain\Purchase\SubscriptionService;
+use Imdhemy\GooglePlay\Infrastructure\Http\ClientFactory;
+use Imdhemy\GooglePlay\Infrastructure\Transformer\Normalizer;
+use Imdhemy\GooglePlay\Infrastructure\Transformer\Serializer;
+
+$client = ClientFactory::create();
+$subscriptionService = new SubscriptionService(
+    $client,
+    Normalizer::create(),
+    Serializer::create(),
+);
+
+$purchase = $subscriptionService->get('com.example.app', $purchaseToken);
+```
+
+The method returns an `Imdhemy\GooglePlay\Domain\Purchase\Entity\SubscriptionPurchase`.
+A successful response is not enough to grant access. Check the subscription
+state and the relevant line items:
+
+```php
+use Imdhemy\GooglePlay\Domain\Purchase\Subscription\SubscriptionState;
+
+if (SubscriptionState::ACTIVE === $purchase->subscriptionState) {
+    foreach ($purchase->lineItems as $lineItem) {
+        $productId = $lineItem->productId;
+    }
+}
+```
+
+A non-success API response throws `Imdhemy\GooglePlay\Exception\UnexpectedResponseException`.
+See [Google's SubscriptionPurchaseV2 reference](https://developers.google.com/android-publisher/api-ref/rest/v3/purchases.subscriptionsv2)
+for field meanings.
+
+## Verify a one-time product
+
+`ProductService::get()` calls `purchases.products.get`. It needs the package
+name, the product ID, and the purchase token.
+
+```php
+use Imdhemy\GooglePlay\Domain\Purchase\Product\PurchaseState;
+use Imdhemy\GooglePlay\Domain\Purchase\ProductService;
+use Imdhemy\GooglePlay\Infrastructure\Http\ClientFactory;
+use Imdhemy\GooglePlay\Infrastructure\Transformer\Normalizer;
+use Imdhemy\GooglePlay\Infrastructure\Transformer\Serializer;
+
+$client = ClientFactory::create();
+$productService = new ProductService(
+    $client,
+    Normalizer::create(),
+    Serializer::create(),
+);
+
+$purchase = $productService->get('com.example.app', $productId, $purchaseToken);
+
+if (PurchaseState::PURCHASED === $purchase->purchaseState) {
+    // Decide entitlement from the purchase state, then deliver the product.
+}
+```
+
+The return type is `Imdhemy\GooglePlay\Domain\Purchase\Entity\ProductPurchase`.
+
+### Acknowledge or consume the purchase
+
+Google Play refunds purchases that are not acknowledged within three days.
+Acknowledge a non-consumable only when it has not already been acknowledged.
+Consuming a consumable also acknowledges it.
+
+```php
+use Imdhemy\GooglePlay\Domain\Purchase\Product\AcknowledgementState;
+
+if (AcknowledgementState::NOT_ACKNOWLEDGED === $purchase->acknowledgementState) {
+    $productService->acknowledge('com.example.app', $productId, $purchaseToken);
+}
+```
+
+```php
+use Imdhemy\GooglePlay\Domain\Purchase\Product\ConsumptionState;
+
+if (ConsumptionState::NOT_CONSUMED === $purchase->consumptionState) {
+    $productService->consume('com.example.app', $productId, $purchaseToken);
+}
+```
+
+## Server notifications
+
+To receive Real-time developer notifications, create a Pub/Sub topic and a
+push subscription that points at your own HTTP endpoint. The Play Console
+setup is the same as in the [Google Play RTDN guide](/docs/1.x/server-notifications/google-play);
+use your application URL instead of LIAP's signed route.
+
+The package expects the Pub/Sub push body as an array with a base64-encoded
+`message.data` field. Parse that body, then load the purchase with the token
+from the notification.
+
+```php
+use Imdhemy\GooglePlay\Infrastructure\Transformer\Normalizer;
+use Imdhemy\GooglePlay\Interface\Rtdn\NotificationParser;
+
+$cloudMessage = json_decode($requestBody, true, flags: JSON_THROW_ON_ERROR);
+$notification = (new NotificationParser(Normalizer::create()))->parse($cloudMessage);
+
+if ($notification->subscriptionNotification !== null) {
+    $purchaseToken = $notification->subscriptionNotification->purchaseToken;
+    $packageName = $notification->packageName;
+    // Then call SubscriptionService::get() as shown above.
+}
+
+if ($notification->oneTimeProductNotification !== null) {
+    $purchaseToken = $notification->oneTimeProductNotification->purchaseToken;
+    $productId = $notification->oneTimeProductNotification->sku;
+    $packageName = $notification->packageName;
+    // Then call ProductService::get() as shown above.
+}
+```
+
+`parse()` throws `InvalidArgumentException` when the push body is malformed.
+
+:::tip
+The [Google Play Billing section](/docs/1.x/category/google-play-billing) covers
+selling products and subscriptions from Laravel. The standalone package's
+[usage docs](https://github.com/imdhemy/google-play-billing/tree/1.x/docs)
+go deeper into purchase lifecycle and other Developer API services.
+:::
